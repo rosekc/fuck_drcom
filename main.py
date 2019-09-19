@@ -1,21 +1,32 @@
+import logging
 import os
 import time
 
 import requests
-from requests.exceptions import SSLError
-from urllib3.exceptions import MaxRetryError
 
 from config import PASSWORD, USERNAME, VERIFICATION_URL
-
 
 TEST_URL = 'https://www.baidu.com/'
 KEEP_ALIVE = False
 
 
+def get_logger():
+    logger = logging.getLogger('fuck_drcom')
+    logger.setLevel(logging.INFO)
+    formatter = logging.Formatter('%(asctime)s: %(message)s')
+    ch = logging.StreamHandler()
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
+    return logger
+
+
+logger = get_logger()
+
+
 def check_connection():
     try:
         requests.head(TEST_URL)
-    except (MaxRetryError, SSLError):
+    except requests.ConnectionError:
         return False
     return True
 
@@ -44,14 +55,15 @@ def logout():
 def keep_alive():
     while True:
         if not check_connection():
-            print('conection disconnect, retry login')
+            logger.info('network disconnect, retry login')
             if login(USERNAME, PASSWORD):
-                print('successfully login as {}'.format(USERNAME))
+                logger.info('successfully login as {}'.format(USERNAME))
             else:
-                print('login fail, retry later')
+                logger.info('login fail, retry later')
         else:
-            print('conection ok')
+            logger.info('conection ok')
         time.sleep(60)
+
 
 if __name__ == "__main__":
     keep_alive()
