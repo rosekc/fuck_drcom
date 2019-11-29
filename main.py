@@ -2,9 +2,15 @@ import logging
 import os
 import time
 
+import click
 import requests
 
-from config import PASSWORD, USERNAME, VERIFICATION_URL
+try:
+    from config import PASSWORD, USERNAME, VERIFICATION_URL, KEEP_ALIVE
+except ImportError:
+    PASSWORD = USERNAME = None
+    KEEP_ALIVE = True
+    VERIFICATION_URL = 'https://drcom.szu.edu.cn/'
 
 TEST_URL = 'https://www.baidu.com/'
 KEEP_ALIVE = False
@@ -56,7 +62,31 @@ def logout():
     return res.status_code == 200 and not check_connection()
 
 
-def keep_alive():
+class OptionPromptNull(click.Option):
+    # https://stackoverflow.com/questions/45868549/
+    _value_key = '_default_val'
+
+    def get_default(self, ctx):
+        if not hasattr(self, self._value_key):
+            default = super(OptionPromptNull, self).get_default(ctx)
+            setattr(self, self._value_key, default)
+        return getattr(self, self._value_key)
+
+    def prompt_for_value(self, ctx):
+        default = self.get_default(ctx)
+
+        # only prompt if the default value is None
+        if default is None:
+            return super(OptionPromptNull, self).prompt_for_value(ctx)
+
+        return default
+
+
+@click.command()
+@click.option('-u', '--username', prompt=True, default=USERNAME, cls=OptionPromptNull)
+@click.option('-p', '--password', prompt=True, hide_input=True, default=PASSWORD, cls=OptionPromptNull)
+@click.option('-a', '--keep_alive', type=bool, default=KEEP_ALIVE)
+def cli(username, password, keep_alive):
     while True:
         if not check_connection():
             logger.info('network disconnect, retry login')
@@ -66,8 +96,10 @@ def keep_alive():
                 logger.info('login fail, retry later')
         else:
             logger.info('conection ok')
+        if not keep_alive:
+            return
         time.sleep(60)
 
 
 if __name__ == "__main__":
-    keep_alive()
+    cli()
