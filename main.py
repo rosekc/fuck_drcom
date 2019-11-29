@@ -41,7 +41,11 @@ def login(username, password):
         'para': 00,
         '0MKKey': 123456
     }
-    res = requests.post(VERIFICATION_URL, form_data)
+
+    try:
+        res = requests.post(VERIFICATION_URL, form_data)
+    except requests.ConnectionError:
+        return False
 
     return res.status_code == 200 and check_connection()
 
