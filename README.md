@@ -39,6 +39,6 @@ Usage: main.py [OPTIONS]
 Options:
   -u, --username TEXT
   -p, --password TEXT
-  -a, --keep_alive BOOLEAN
-  --help                    Show this message and exit.
+  -a, --keep_alive
+  --help               Show this message and exit.
 ```

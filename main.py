@@ -85,8 +85,10 @@ class OptionPromptNull(click.Option):
 @click.command()
 @click.option('-u', '--username', prompt=True, default=USERNAME, cls=OptionPromptNull)
 @click.option('-p', '--password', prompt=True, hide_input=True, default=PASSWORD, cls=OptionPromptNull)
-@click.option('-a', '--keep_alive', type=bool, default=KEEP_ALIVE)
+@click.option('-a', '--keep_alive', is_flag=True, default=KEEP_ALIVE)
 def cli(username, password, keep_alive):
+    if keep_alive:
+        logger.info('keep alive mode on')
     while True:
         if not check_connection():
             logger.info('network disconnect, retry login')
