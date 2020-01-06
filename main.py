@@ -6,14 +6,12 @@ import click
 import requests
 
 try:
-    from config import PASSWORD, USERNAME, VERIFICATION_URL, KEEP_ALIVE
+    from config import PASSWORD, USERNAME, VERIFICATION_URL
 except ImportError:
     PASSWORD = USERNAME = None
-    KEEP_ALIVE = True
     VERIFICATION_URL = 'https://drcom.szu.edu.cn/'
 
 TEST_URL = 'https://www.baidu.com/'
-KEEP_ALIVE = False
 
 
 def get_logger():
@@ -85,7 +83,7 @@ class OptionPromptNull(click.Option):
 @click.command()
 @click.option('-u', '--username', prompt=True, default=USERNAME, cls=OptionPromptNull)
 @click.option('-p', '--password', prompt=True, hide_input=True, default=PASSWORD, cls=OptionPromptNull)
-@click.option('-a', '--keep_alive', is_flag=True, default=KEEP_ALIVE)
+@click.option('-a', '--keep_alive', is_flag=True, cls=OptionPromptNull)
 def cli(username, password, keep_alive):
     if keep_alive:
         logger.info('keep alive mode on')
