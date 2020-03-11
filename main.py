@@ -95,7 +95,7 @@ def cli(username, password, keep_alive):
             else:
                 logger.info('login fail, retry later')
         else:
-            logger.info('conection ok')
+            logger.debug('conection ok')
         if not keep_alive:
             return
         time.sleep(60)
